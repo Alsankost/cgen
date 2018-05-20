@@ -3,6 +3,7 @@
 #include <time.h>
 
 #include "./includes/vm.h";
+#include "./includes/world.h"
 
 const int DEFAULT_COMMANDS_COUNT = 10;
 const int DEFAULT_PROG_SIZE = 64;
@@ -53,53 +54,52 @@ bool getProp(Bot* bot, int bit) {
 }
 
 VM::VM() {
-	this.commands = new Command[commandsCount];
+	this->commands = new Command[commandsCount];
 }
 
 VM::VM(int ps) {
-	this.progSize = (ps > 0)?ps:DEFAULT_PROG_SIZE;
+	this->progSize = (ps > 0)?ps:DEFAULT_PROG_SIZE;
 	VM();
 }
 
 VM::VM(int ps, int cc) {
-	this.progSize = (ps > 0)?ps:DEFAULT_PROG_SIZE;
-	this.commandsCount = (cc > 0)?cc:DEFAULT_COMMANDS_COUNT;
+	this->progSize = (ps > 0)?ps:DEFAULT_PROG_SIZE;
+	this->commandsCount = (cc > 0)?cc:DEFAULT_COMMANDS_COUNT;
 	VM();
 }
 
 void VM::setCommand(int id, Command com) {
-	if (id < 0 || id >= this.commandsCount || com.execute == 0) return;
-	this.commands[id] = com;
+	if (id < 0 || id >= this->commandsCount || com.execute == 0) return;
+	this->commands[id] = com;
 }
 
 Command VM::getCommand(int id) {
-	if (id < 0 || id >= this.commandsCount) return Command;
-	return this.commands[id];
+	if (id < 0 || id >= this->commandsCount) return Command{0, 0, 0};
+	return this->commands[id];
 }
 
 void VM::setMaxEnergy(int me) {
-	this.maxEnergy = me;
+	this->maxEnergy = me;
 }
 
 void VM::setStartEnergy(int se) {
-	this.startEnergy = se;
+	this->startEnergy = se;
 }
 		
 int VM::getCommandCount() {
-	return this.commandsCount;
+	return this->commandsCount;
 }
 
 int VM::getProgSize() {
-	return this.progSize;
+	return this->progSize;
 }
 
 void VM::executeBot(int x, int y, Bot* bot, World* world) {
-	CommandItem* = bot.prog;
-	if (bot->pointer > this.progSize || bot->pointer < 0) bot->pointer = 0;
-	CommandItem tmp = bot.prog[bot->pointer];
+	if (bot->pointer > this->progSize || bot->pointer < 0) bot->pointer = 0;
+	CommandItem tmp = bot->prog[bot->pointer];
 	commands[tmp.idCommand].execute(x, y, bot, this, world, tmp.args);
 	if (bot->energy <= 0) world->set(x, y, 2, 10);
-	if (bot->energy >= this.maxEnergy) {
+	if (bot->energy >= this->maxEnergy) {
 		bool flag = true;
 		for (int i = 0; i < 8; i++) {
 			if (world->isEmptyToDir(x, y, i)) {
@@ -122,15 +122,15 @@ void VM::executeWorld(World* world) {
 			WorldItem tmp = world->get(x, y);
 			if (tmp.type == 1) {
 				Bot* bot = (Bot*) tmp.proxyPointer;
-				this.executeBot(x, y, bot, world);
+				this->executeBot(x, y, bot, world);
 			}
 		}
 	}
 }
 
 CommandItem VM::createRandomCommandItem(int id) {
-	if (id < 0 || id >= this.commandsCount) return CommandItem;
-	Command comm = this.commands[id];
+	if (id < 0 || id >= this->commandsCount) return CommandItem{-1, 0};
+	Command comm = this->commands[id];
 	CommandItem tmp;
 	tmp.idCommand = id;
 	tmp.args = new double[comm.argsCount];
@@ -150,7 +150,7 @@ double VM::createRandomArg(int type) {
 		case 2:
 			return rand() % 101;
 		case 3:
-			return rand() % this.progSize();
+			return rand() % this->progSize;
 		case 4:
 			return rand() % 8;
 	}
@@ -160,21 +160,21 @@ double VM::createRandomArg(int type) {
 Bot* VM::createNewBot() {
 	srand(time(NULL));
 	Bot* tmp = new Bot;
-	tmp->prog = new CommandItem[this.progSize];
-	for (int i = 0; i < this.progSize(); i++) {
-		tmp->prog[i] = this.createRandomCommandItem(rand() % commandsCount]);
+	tmp->prog = new CommandItem[this->progSize];
+	for (int i = 0; i < this->progSize; i++) {
+		tmp->prog[i] = this->createRandomCommandItem(rand() % commandsCount);
 	}
-	tmp->energy = this.startEnergy;
+	tmp->energy = this->startEnergy;
 	return tmp;
 }
 
-Bot* createChildBot(Bot* bot) {
+Bot* VM::createChildBot(Bot* bot) {
 	Bot* tmp = new Bot;
-	for (int i = 0; i < this.progSize; i++) {
+	for (int i = 0; i < this->progSize; i++) {
 		tmp->prog[i] = bot->prog[i];
 	}
 	srand(time(NULL));
-	int tp = rand() % this.progSize;
-	tmp->prog[tmp] = this.createRandomCommandItem(rand() % commandsCount]);
+	int tp = rand() % this->progSize;
+	tmp->prog[tp] = this->createRandomCommandItem(rand() % commandsCount);
 	return tmp;
 }

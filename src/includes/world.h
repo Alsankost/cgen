@@ -10,8 +10,6 @@ struct SimplePoint {
 	int x, y;
 };
 
-SimplePoint pointFromXYD(int x, int y, int dir);
-
 struct WorldItem {
 	int type = 0;
 	long proxyPointer = 0;
@@ -26,7 +24,7 @@ class World {
 		World(int w, int h);
 
 		int getWidth();
-		int getHeigth();
+		int getHeight();
 
 		WorldItem get(int x, int y);
 		void set(int x, int y, int type, long pp);
@@ -41,4 +39,6 @@ class World {
 		void moveToDir(int x, int y, int dir);
 
 		bool isEmptyToDir(int x, int y, int dir);
+		
+		SimplePoint pointFromXYD(int x, int y, int dir);
 };
