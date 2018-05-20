@@ -97,7 +97,7 @@ void VM::executeBot(int x, int y, Bot* bot, World* world) {
 	CommandItem* = bot.prog;
 	if (bot->pointer > this.progSize || bot->pointer < 0) bot->pointer = 0;
 	CommandItem tmp = bot.prog[bot->pointer];
-	commands[tmp.idCommand].execute(x, y, bot, world, tmp.args);
+	commands[tmp.idCommand].execute(x, y, bot, this, world, tmp.args);
 	if (bot->energy <= 0) world->set(x, y, 2, 10);
 	if (bot->energy >= this.maxEnergy) {
 		bool flag = true;

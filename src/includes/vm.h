@@ -12,6 +12,8 @@ double normArgFloat(double data);
 double normArgPrc(double data);
 double normArgDir(double data);
 
+class VM;
+
 struct CommandItem {
 	int idCommand;
 	double* args;
