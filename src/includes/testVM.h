@@ -19,3 +19,4 @@ void comTest_lessEnergy(int x, int y, Bot* bot, World world, double* args);
 void comTest_ifBotToDir(int x, int y, Bot* bot, World world, double* args);
 
 VM* createTestVM();
+Bot* createFirsBot(VM* vm);

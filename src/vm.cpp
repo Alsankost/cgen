@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <cmath>
+
+#include <iostream>
 
 #include "./includes/vm.h";
 #include "./includes/world.h"
+
+using namespace std;
 
 const int DEFAULT_COMMANDS_COUNT = 10;
 const int DEFAULT_PROG_SIZE = 64;
@@ -46,26 +51,28 @@ double normArgDir(double data) {
  3bit - is toxic;
 */
 void setProp(Bot* bot, int bit, bool state) {
-	bot->prop += (2 ^ (bit + 1)) * (state)?1:-1;
+	bot->prop += (pow(2,  (bit + 1)) * ((state)?1:-1));
+	//cout << bot->prop << " " << (2 ^ (bit + 1)) << " " << ((state)?1:-1) << '\n';
 }
 
 bool getProp(Bot* bot, int bit) {
-	return bot->prop & (2 ^ (bit + 1));
+	//cout << pow(2, 2) << " " << pow(2, (bit + 1)) << " UU \n";
+	return bot->prop & ((int) pow(2, (bit + 1)));
 }
 
 VM::VM() {
-	this->commands = new Command[commandsCount];
+	this->commands = new Command[this->commandsCount];
 }
 
 VM::VM(int ps) {
 	this->progSize = (ps > 0)?ps:DEFAULT_PROG_SIZE;
-	VM();
+	this->commands = new Command[this->commandsCount];
 }
 
 VM::VM(int ps, int cc) {
 	this->progSize = (ps > 0)?ps:DEFAULT_PROG_SIZE;
 	this->commandsCount = (cc > 0)?cc:DEFAULT_COMMANDS_COUNT;
-	VM();
+	this->commands = new Command[this->commandsCount];
 }
 
 void VM::setCommand(int id, Command com) {
@@ -97,7 +104,10 @@ int VM::getProgSize() {
 void VM::executeBot(int x, int y, Bot* bot, World* world) {
 	if (bot->pointer > this->progSize || bot->pointer < 0) bot->pointer = 0;
 	CommandItem tmp = bot->prog[bot->pointer];
+	cout << bot->pointer << " " << tmp.idCommand << " " << bot->energy << '\n';
 	commands[tmp.idCommand].execute(x, y, bot, this, world, tmp.args);
+	bot->pointer++;
+	//bot->energy -= 1;
 	if (bot->energy <= 0) world->set(x, y, 2, 10);
 	if (bot->energy >= this->maxEnergy) {
 		bool flag = true;
@@ -111,7 +121,7 @@ void VM::executeBot(int x, int y, Bot* bot, World* world) {
 			}
 		}
 		if (flag) {
-			world->setToPoint(x, y, 2, bot->energy / 4);
+			world->set(x, y, 2, bot->energy / 4);
 		}
 	}
 }
@@ -164,15 +174,21 @@ Bot* VM::createNewBot() {
 	for (int i = 0; i < this->progSize; i++) {
 		tmp->prog[i] = this->createRandomCommandItem(rand() % commandsCount);
 	}
+	tmp->pointer = 0;
 	tmp->energy = this->startEnergy;
+	tmp->prop = 0;
 	return tmp;
 }
 
 Bot* VM::createChildBot(Bot* bot) {
 	Bot* tmp = new Bot;
+	tmp->prog = new CommandItem[this->progSize];
 	for (int i = 0; i < this->progSize; i++) {
 		tmp->prog[i] = bot->prog[i];
 	}
+	tmp->energy = this->startEnergy;
+	tmp->pointer = 0;
+	tmp->prop = 0;
 	srand(time(NULL));
 	int tp = rand() % this->progSize;
 	tmp->prog[tp] = this->createRandomCommandItem(rand() % commandsCount);

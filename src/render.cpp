@@ -32,6 +32,7 @@ void drawBot(int x, int y, long pp) {
 }
 
 void drawCompl(int x, int y) {
+	glColor3f(0.4, 0.4, 0.4);
 	glBegin(GL_QUADS);
 		glVertex3f(x + WIDTH_WORLD_ITEM / 2, y, 0);
 		glVertex3f(x + WIDTH_WORLD_ITEM, y + HEIGTH_WORLD_ITEM / 2, 0);
@@ -41,6 +42,7 @@ void drawCompl(int x, int y) {
 }
 
 void drawStone(int x, int y) {
+	glColor3f(1, 1, 0);
 	glBegin(GL_QUADS);
 		glVertex3f(x + WIDTH_WORLD_ITEM, y, 0);
 		glVertex3f(x + WIDTH_WORLD_ITEM, y + HEIGTH_WORLD_ITEM, 0);
@@ -66,7 +68,7 @@ void drawWorldItem(int x, int y, WorldItem item) {
 void drawWorld(World* world) {
 	for (int x = 0; x < world->getWidth(); x++) {
 		for (int y = 0; y < world->getWidth(); y++) {
-			drawWorldItem(x, y, world->get(x, y));
+			drawWorldItem(x * WIDTH_WORLD_ITEM + 32, y * HEIGTH_WORLD_ITEM + 32, world->get(x, y));
 		}
 	}
 }
